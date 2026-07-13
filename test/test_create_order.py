@@ -2,7 +2,7 @@ import allure
 import requests
 from src.user_heplers import User
 from src.order_helpers import Order
-from src.urls import CREATE_ORDERS, REGISTER, LOGIN
+from src.urls import CREATE_ORDERS, REGISTER, LOGIN, USER_DATA
 
 
 @allure.suite("Создание заказа")
@@ -31,6 +31,12 @@ class TestCreateOrder:
             assert response.status_code == 200
             assert response.json()["success"] is True
             assert response.json()["order"]["number"] is not None
+
+        with allure.step("Удалить созданного пользователя"):
+            response_delete = requests.delete(USER_DATA, headers={"Authorization": str(access_token)})
+            assert response_delete.status_code == 202
+            assert response_delete.json()["success"] is True
+            assert response_delete.json()["message"] == User.SUCCESSFULLY_REMOVED
 
     @allure.title("Создание заказа без авторизации")
     @allure.description("Заказ с валидными ингредиентами без токена возвращает 200")

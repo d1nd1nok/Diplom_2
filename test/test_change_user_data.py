@@ -31,6 +31,12 @@ class TestChangeUserData:
         with allure.step("Проверить код ответа 200"):
             assert response_change_data.status_code == 200
 
+        with allure.step("Удалить созданного пользователя"):
+            response_delete = requests.delete(USER_DATA, headers={"Authorization": str(access_token)})
+            assert response_delete.status_code == 202
+            assert response_delete.json()["success"] is True
+            assert response_delete.json()["message"] == User.SUCCESSFULLY_REMOVED
+
     @allure.title("Изменение данных без авторизации")
     @allure.description("Изменение данных без токена возвращает 401 и сообщение об ошибке")
     def test_change_user_data_without_authentication(self):
@@ -46,6 +52,13 @@ class TestChangeUserData:
         with allure.step("Проверить код ответа 401 и текст ошибки"):
             assert response_change_data.status_code == 401
             assert response_change_data.json()["message"] == User.NO_AUTHORIZATION
+
+        with allure.step("Удалить созданного пользователя"):
+            access_token = response_register.json().get("accessToken")
+            response_delete = requests.delete(USER_DATA, headers={"Authorization": str(access_token)})
+            assert response_delete.status_code == 202
+            assert response_delete.json()["success"] is True
+            assert response_delete.json()["message"] == User.SUCCESSFULLY_REMOVED
 
     @allure.title("Изменение email на уже существующий")
     @allure.description("Смена email на занятый другим пользователем возвращает 403 и сообщение об ошибке")
@@ -74,3 +87,11 @@ class TestChangeUserData:
         with allure.step("Проверить код ответа 403 и текст ошибки"):
             assert response_change_data.status_code == 403
             assert response_change_data.json()["message"] == User.EMAIL_EXISTS
+
+        with allure.step("Удалить обоих созданных пользователей"):
+            for response_register in (response_register1, response_register2):
+                access_token = response_register.json().get("accessToken")
+                response_delete = requests.delete(USER_DATA, headers={"Authorization": str(access_token)})
+                assert response_delete.status_code == 202
+                assert response_delete.json()["success"] is True
+                assert response_delete.json()["message"] == User.SUCCESSFULLY_REMOVED

@@ -1,6 +1,6 @@
 import allure
 import requests
-from src.urls import REGISTER
+from src.urls import REGISTER, USER_DATA
 from src.user_heplers import User
 import pytest
 
@@ -18,6 +18,13 @@ class TestRegisterUser:
         with allure.step("Проверить код ответа 200"):
             assert response.status_code == 200
 
+        with allure.step("Удалить созданного пользователя"):
+            access_token = response.json().get("accessToken")
+            response_delete = requests.delete(USER_DATA, headers={"Authorization": str(access_token)})
+            assert response_delete.status_code == 202
+            assert response_delete.json()["success"] is True
+            assert response_delete.json()["message"] == User.SUCCESSFULLY_REMOVED
+
     @allure.title("Регистрация пользователя с уже существующим email")
     @allure.description("Повторная регистрация того же пользователя возвращает 403 и сообщение об ошибке")
     def test_register_user_with_existing_email(self):
@@ -32,6 +39,13 @@ class TestRegisterUser:
         with allure.step("Проверить код ответа 403 и текст ошибки"):
             assert response_existing_email.status_code == 403
             assert response_existing_email.json()["message"] == User.ALREADY_EXISTS
+
+        with allure.step("Удалить созданного пользователя"):
+            access_token = response.json().get("accessToken")
+            response_delete = requests.delete(USER_DATA, headers={"Authorization": str(access_token)})
+            assert response_delete.status_code == 202
+            assert response_delete.json()["success"] is True
+            assert response_delete.json()["message"] == User.SUCCESSFULLY_REMOVED
 
     @allure.title("Регистрация пользователя без обязательного поля")
     @allure.description("Регистрация без одного из обязательных полей возвращает 403 и сообщение об ошибке")

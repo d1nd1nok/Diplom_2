@@ -7,6 +7,7 @@ class User:
     NO_AUTHORIZATION = "You should be authorised"
     EMAIL_EXISTS = "User with such email already exists"
     INVALID_CREDENTIALS = "email or password are incorrect"
+    SUCCESSFULLY_REMOVED = "User successfully removed"
 
     @staticmethod
     def valid_user():
