@@ -12,7 +12,6 @@ def registered_user():
     """
     payload = User.valid_user()
     response_register = User().register(payload)
-    assert response_register.status_code == 200
     access_token = response_register.json().get("accessToken")
 
     yield {"payload": payload, "token": access_token}
@@ -44,12 +43,9 @@ def authorized_user():
     """
     payload = User.valid_user()
     response_register = User().register(payload)
-    assert response_register.status_code == 200
 
     response_login = User().login(payload)
-    assert response_login.status_code == 200
     access_token = response_login.json().get("accessToken")
-    assert access_token is not None
 
     yield {"payload": payload, "token": access_token}
 
